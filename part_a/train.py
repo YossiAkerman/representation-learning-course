@@ -45,6 +45,11 @@ def _limit_batches(value):
 def parse_args():
     parser = argparse.ArgumentParser(description="Train the Tiny-ImageNet denoising autoencoder.")
     parser.add_argument(
+        "--config",
+        default="a1",
+        help="Experiment file in configs/, without the .py suffix. Default: a1.",
+    )
+    parser.add_argument(
         "--resume",
         action="store_true",
         help="Continue from checkpoints/last.ckpt.",
@@ -63,7 +68,7 @@ def parse_args():
 
 
 def run(args):
-    """Train, or score the held-out test split. Settings come from config.py."""
+    """Train, or score the held-out test split. Settings come from the loaded experiment."""
     pl.seed_everything(config.SEED, workers=True)
 
     if args.test:
@@ -82,7 +87,9 @@ def run(args):
             raise FileNotFoundError(f"No checkpoint at {ckpt_path}.")
 
     run_id = time.strftime("%Y-%m-%d_%H-%M-%S")
-    logger = TensorBoardLogger(args.log_dir, name=run_id, version="denoising_ae", default_hp_metric=False)
+    logger = TensorBoardLogger(
+        args.log_dir, name=run_id, version=config.EXPERIMENT_NAME, default_hp_metric=False
+    )
     model = build_model()
     dm = build_datamodule()
     max_epochs = config.NUM_EPOCHS if args.max_epochs is None else args.max_epochs
@@ -90,9 +97,9 @@ def run(args):
 
     print(model)
     print(
-        f"Denoising autoencoder on Tiny-ImageNet for {max_epochs} epochs, "
-        f"batch size {config.BATCH_SIZE}, latent dim {config.LATENT_DIM}, "
-        f"noise sigma {config.NOISE_SIGMA}, lr {config.LEARNING_RATE}"
+        f"Experiment {config.EXPERIMENT_NAME}: denoising autoencoder on Tiny-ImageNet "
+        f"for {max_epochs} epochs, batch size {config.BATCH_SIZE}, "
+        f"latent dim {config.LATENT_DIM}, noise sigma {config.NOISE_SIGMA}, lr {config.LEARNING_RATE}"
     )
     trainer.fit(model, dm, ckpt_path=ckpt_path)
 
@@ -124,6 +131,11 @@ def _make_trainer(args, logger, max_epochs, checkpointing=True):
 
 
 def main():
+    # Load the experiment before parse_args reads checkpoint and log defaults from it.
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--config", default="a1")
+    known, _ = pre.parse_known_args()
+    config.load(known.config)
     run(parse_args())
 
 

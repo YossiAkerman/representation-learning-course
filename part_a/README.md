@@ -14,7 +14,7 @@ The published training split contains 100,000 images across 200 classes. A gener
 - 10,000 validation images, 50 per class, with no index in common with the training set
 - 10,000 official test images, taken from the dataset's `valid` split and not used to form the other two sets
 
-Every image is converted to RGB and then to a float tensor in [0, 1], with shape `[3, 64, 64]`. `NUM_WORKERS` is 0 because decoding these files in forked workers is unreliable on macOS. On a Linux machine or Colab, that value can be raised in `config.py`.
+Every image is converted to RGB and then to a float tensor in [0, 1], with shape `[3, 64, 64]`. `NUM_WORKERS` is 0 because decoding these files in forked workers is unreliable on macOS. On a Linux machine or Colab, that value can be raised in `configs/a1.py`.
 
 ## Model architecture
 
@@ -51,14 +51,14 @@ The objective is the mean squared error between the reconstruction and the clean
 | Accelerator | `auto` (GPU when available, otherwise CPU) |
 | Precision | `16-mixed` (bf16 fallback on CPU) |
 
-`python train.py` trains for 10 epochs and validates on the held-out 10,000 images. It does not score the official test split. There is no early stopping, so the run uses the full epoch budget. The last checkpoint is written to `checkpoints/last.ckpt`. When that file is in the default checkpoint directory, the encoder weights are also written to `tiny_imagenet_encoder.pt`.
+The settings for this run live in `configs/a1.py`. `python train.py --config a1` loads that file and trains for 10 epochs on the held-out 10,000 validation images. It does not score the official test split. There is no early stopping, so the run uses the full epoch budget. The last checkpoint is written to `checkpoints/last.ckpt`. When that file is in the default checkpoint directory, the encoder weights are also written to `tiny_imagenet_encoder.pt`. A later experiment adds `configs/<name>.py` and is started with `--config <name>`.
 
-An interrupted run continues with `python train.py --resume`. Resume starts a new TensorBoard directory. `visualize.py` reads the latest directory unless `--logdir` points at an earlier one.
+An interrupted run continues with `python train.py --config a1 --resume`. Resume starts a new TensorBoard directory. `visualize.py` reads the latest directory unless `--logdir` points at an earlier one.
 
 The official test split is reserved for final evaluation:
 
 ```bash
-python train.py --test
+python train.py --config a1 --test
 ```
 
 ## Commands
@@ -73,7 +73,7 @@ python smoke_test.py
 Initial training:
 
 ```bash
-python train.py
+python train.py --config a1
 ```
 
 TensorBoard:
@@ -91,7 +91,7 @@ python visualize.py
 ## Output locations
 
 - `dataset/` — Hugging Face cache
-- `tb_logs/<timestamp>/denoising_ae/` — training and validation loss
+- `tb_logs/<timestamp>/a1/` — training and validation loss
 - `checkpoints/last.ckpt` — last training checkpoint
 - `tiny_imagenet_encoder.pt` — encoder weights from a run that used the default checkpoint directory
 - `figures/a1_reconstructions.png` — eight validation images, original, noisy, and reconstructed

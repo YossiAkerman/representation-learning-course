@@ -20,13 +20,14 @@ from train import build_datamodule
 
 
 def latest_logdir(root):
-    """Most recent tb_logs/<timestamp>/denoising_ae directory."""
+    """Most recent tb_logs/<timestamp>/<experiment> directory."""
     root = Path(root)
+    name = config.EXPERIMENT_NAME
     if not root.is_dir():
         raise SystemExit(f"No TensorBoard directory at {root}. Train before plotting.")
-    candidates = [path / "denoising_ae" for path in root.iterdir() if (path / "denoising_ae").is_dir()]
+    candidates = [path / name for path in root.iterdir() if (path / name).is_dir()]
     if not candidates:
-        raise SystemExit(f"No denoising_ae run under {root}. Train before plotting.")
+        raise SystemExit(f"No {name} run under {root}. Train before plotting.")
     return max(candidates, key=lambda path: path.stat().st_mtime)
 
 

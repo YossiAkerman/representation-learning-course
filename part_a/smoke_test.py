@@ -74,6 +74,8 @@ def main():
         [
             sys.executable,
             "train.py",
+            "--config",
+            "a1",
             "--max-epochs",
             "1",
             "--limit-train-batches",

@@ -1,25 +1,27 @@
-# Training hyperparameters for the denoising autoencoder.
-LATENT_DIM = 128  # length of h. Later probes must use this same width.
-NOISE_SIGMA = 0.10  # standard deviation of the Gaussian corruption
-LEARNING_RATE = 0.001
-BATCH_SIZE = 128
-NUM_EPOCHS = 10
-SEED = 42
+"""Active experiment settings.
 
-# Dataset
-DATASET_NAME = "zh-plus/tiny-imagenet"
-DATA_DIR = "dataset/"  # Hugging Face cache; gitignored
-NUM_CLASSES = 200
-VAL_PER_CLASS = 50  # held out of the original training split
-NUM_WORKERS = 0  # Hugging Face image decoding and macOS process forking do not mix. Raise this on Colab.
+Other modules import this file. load() copies one configs/<name>.py onto it.
+Importing config loads the A1 experiment, which is the default run.
+"""
 
-# Compute. "auto" uses a GPU when one is present, and the CPU otherwise.
-ACCELERATOR = "auto"
-DEVICES = 1
-PRECISION = "16-mixed"  # mixed precision on GPU; Lightning falls back to bf16 on CPU
+import importlib.util
+from pathlib import Path
 
-# Outputs. Checkpoints and the encoder file are gitignored.
-CHECKPOINT_DIR = "checkpoints"
-ENCODER_PATH = "tiny_imagenet_encoder.pt"
-LOG_DIR = "tb_logs"
-FIGURES_DIR = "figures"
+_CONFIGS = Path(__file__).resolve().parent / "configs"
+
+
+def load(name):
+    """Load configs/<name>.py and copy its uppercase settings onto this module."""
+    path = _CONFIGS / f"{name}.py"
+    if not path.is_file():
+        raise FileNotFoundError(f"No experiment config at {path}")
+    spec = importlib.util.spec_from_file_location(f"configs.{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    for key, value in vars(module).items():
+        if key.isupper():
+            globals()[key] = value
+    return module
+
+
+load("a1")
