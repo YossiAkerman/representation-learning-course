@@ -1,0 +1,7 @@
+pytorch-lightning
+torchmetrics
+tensorboard
+matplotlib
+datasets
+torchvision
+Pillow
