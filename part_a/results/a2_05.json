@@ -1,0 +1,16 @@
+{
+  "experiment": "a2_05",
+  "model": "dae",
+  "dataset": "tinyimagenet",
+  "latent_dim": 256,
+  "noise_sigma": 0.2,
+  "learning_rate": 0.001,
+  "epochs": 2,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 0.051633112132549286,
+    "train_loss_step": 0.04162805527448654,
+    "val_loss": 0.04272501543164253,
+    "train_loss_epoch": 0.051633112132549286
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "experiment": "probe_dae_10",
+  "model": "linear_probe",
+  "dataset": "tinyimagenet",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 3.302950859069824,
+    "train_loss_step": 3.2835693359375,
+    "train_accuracy": 0.3135555684566498,
+    "train_accuracy_step": 0.3499999940395355,
+    "val_loss": 5.347188949584961,
+    "val_accuracy": 0.04729999974370003,
+    "val_top5": 0.1421000063419342,
+    "train_loss_epoch": 3.302950859069824,
+    "train_accuracy_epoch": 0.3135555684566498,
+    "train_top5": 0.5474444627761841
+  }
+}

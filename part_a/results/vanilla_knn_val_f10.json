@@ -1,0 +1,9 @@
+{
+  "experiment": "vanilla",
+  "protocol": "knn",
+  "dataset": "tinyimagenet",
+  "split": "val",
+  "label_fraction": 10,
+  "top1": 0.0436,
+  "top5": 0.1351
+}

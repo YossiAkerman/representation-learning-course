@@ -1,0 +1,22 @@
+{
+  "experiment": "supervised_100",
+  "model": "supervised",
+  "dataset": "tinyimagenet",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 0.2031066119670868,
+    "train_loss_step": 0.2921219766139984,
+    "train_accuracy": 0.9423888921737671,
+    "train_accuracy_step": 0.875,
+    "val_loss": 10.920475006103516,
+    "val_accuracy": 0.11789999902248383,
+    "val_top5": 0.29109999537467957,
+    "train_loss_epoch": 0.2031066119670868,
+    "train_accuracy_epoch": 0.9423888921737671,
+    "train_top5": 0.9960444569587708
+  }
+}

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import torch
 
 import config
+from model import build_encoder
 from train import build_datamodule, build_model
 
 

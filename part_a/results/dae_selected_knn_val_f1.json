@@ -1,0 +1,9 @@
+{
+  "experiment": "dae_selected",
+  "protocol": "knn",
+  "dataset": "tinyimagenet",
+  "split": "val",
+  "label_fraction": 1,
+  "top1": 0.0256,
+  "top5": 0.0828
+}

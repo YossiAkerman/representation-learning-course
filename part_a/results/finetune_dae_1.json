@@ -1,0 +1,22 @@
+{
+  "experiment": "finetune_dae_1",
+  "model": "finetune",
+  "dataset": "tinyimagenet",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.0001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 4.83538293838501,
+    "train_loss_step": 4.474609375,
+    "train_accuracy": 0.07000000029802322,
+    "train_accuracy_step": 0.25,
+    "val_loss": 5.4152326583862305,
+    "val_accuracy": 0.009399999864399433,
+    "val_top5": 0.04039999842643738,
+    "train_loss_epoch": 4.83538293838501,
+    "train_accuracy_epoch": 0.07000000029802322,
+    "train_top5": 0.17777778208255768
+  }
+}

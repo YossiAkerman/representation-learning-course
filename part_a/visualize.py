@@ -47,16 +47,41 @@ def _scalar_values(logdir, names):
     )
 
 
+def _one_image_per_class(datamodule, count=8):
+    """One validation image from each of several classes.
+
+    Validation indices are sorted, so the first batch is a single class.
+    A fixed seed chooses the classes and one image inside each class.
+    """
+    labels = datamodule.val_labels
+    generator = torch.Generator().manual_seed(config.SEED)
+    class_order = torch.randperm(datamodule.num_classes, generator=generator)
+    chosen = []
+    for class_id in class_order.tolist():
+        rows = torch.where(labels == class_id)[0]
+        if rows.numel() == 0:
+            continue
+        offset = int(torch.randint(rows.numel(), (1,), generator=generator))
+        chosen.append(int(rows[offset]))
+        if len(chosen) == count:
+            break
+    if len(chosen) < count:
+        raise SystemExit(f"Need {count} distinct validation classes, found {len(chosen)}.")
+    pairs = [datamodule.val_ds[row] for row in chosen]
+    images = torch.stack([image for image, _ in pairs])
+    selected_labels = [int(label) for _, label in pairs]
+    if len(set(selected_labels)) != count:
+        raise SystemExit(f"Selected classes are not distinct: {selected_labels}.")
+    return images
+
+
 def save_reconstructions(ckpt, out_path):
     """Eight validation images: original, the noisy input, and the reconstruction."""
     model = DenoisingAutoEncoder.load_from_checkpoint(ckpt, map_location="cpu")
     model.eval()
     datamodule = build_datamodule()
     datamodule.setup()
-    images, _ = next(iter(datamodule.val_dataloader()))
-    images = images[:8]
-    if images.shape[0] < 8:
-        raise SystemExit(f"Need 8 validation images, found {images.shape[0]}.")
+    images = _one_image_per_class(datamodule, count=8)
 
     # Same seed the validation epoch uses, so this row is the corruption the loss sees.
     generator = torch.Generator().manual_seed(config.SEED)

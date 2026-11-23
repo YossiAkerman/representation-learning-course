@@ -1,0 +1,30 @@
+# Generated experiment configuration.
+
+EXPERIMENT_NAME = 'finetune_random_1'
+MODEL = 'finetune'
+DATASET = 'tinyimagenet'
+DATASET_NAME = 'zh-plus/tiny-imagenet'
+LATENT_DIM = 256
+NOISE_SIGMA = 0.0
+LEARNING_RATE = 0.0001
+FINETUNE_LEARNING_RATE = 0.0001
+BATCH_SIZE = 128
+NUM_EPOCHS = 10
+SEED = 42
+NUM_CLASSES = 200
+VAL_PER_CLASS = 50
+NUM_WORKERS = 0
+LABEL_FRACTION = 0.01
+PROXY_PER_CLASS = None
+DATA_DIR = 'dataset/'
+SPLITS_DIR = 'splits'
+ACCELERATOR = 'auto'
+DEVICES = 1
+PRECISION = '16-mixed'
+CHECKPOINT_DIR = 'checkpoints/finetune_random_1'
+ENCODER_PATH = 'checkpoints/finetune_random_1/encoder.pt'
+PRETRAINED_ENCODER = 'checkpoints/random/encoder.pt'
+LOG_DIR = 'tb_logs'
+RESULTS_DIR = 'results'
+FIGURES_DIR = 'figures'
+KNN_K = 20

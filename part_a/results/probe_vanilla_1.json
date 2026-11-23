@@ -1,0 +1,22 @@
+{
+  "experiment": "probe_vanilla_1",
+  "model": "linear_probe",
+  "dataset": "tinyimagenet",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 3.168020248413086,
+    "train_loss_step": 3.3798828125,
+    "train_accuracy": 0.7255555391311646,
+    "train_accuracy_step": 0.75,
+    "val_loss": 5.27750301361084,
+    "val_accuracy": 0.02199999988079071,
+    "val_top5": 0.07850000262260437,
+    "train_loss_epoch": 3.168020248413086,
+    "train_accuracy_epoch": 0.7255555391311646,
+    "train_top5": 0.8777777552604675
+  }
+}

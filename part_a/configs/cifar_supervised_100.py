@@ -1,0 +1,30 @@
+# Generated experiment configuration.
+
+EXPERIMENT_NAME = 'cifar_supervised_100'
+MODEL = 'supervised'
+DATASET = 'cifar100'
+DATASET_NAME = 'zh-plus/tiny-imagenet'
+LATENT_DIM = 256
+NOISE_SIGMA = 0.0
+LEARNING_RATE = 0.001
+FINETUNE_LEARNING_RATE = 0.0001
+BATCH_SIZE = 128
+NUM_EPOCHS = 10
+SEED = 42
+NUM_CLASSES = 100
+VAL_PER_CLASS = 50
+NUM_WORKERS = 0
+LABEL_FRACTION = 1.0
+PROXY_PER_CLASS = None
+DATA_DIR = 'dataset/'
+SPLITS_DIR = 'splits'
+ACCELERATOR = 'auto'
+DEVICES = 1
+PRECISION = '16-mixed'
+CHECKPOINT_DIR = 'checkpoints/cifar_supervised_100'
+ENCODER_PATH = 'checkpoints/cifar_supervised_100/encoder.pt'
+PRETRAINED_ENCODER = None
+LOG_DIR = 'tb_logs'
+RESULTS_DIR = 'results'
+FIGURES_DIR = 'figures'
+KNN_K = 20

@@ -1,0 +1,22 @@
+{
+  "experiment": "finetune_vanilla_100",
+  "model": "finetune",
+  "dataset": "tinyimagenet",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.0001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 3.093629837036133,
+    "train_loss_step": 3.49615478515625,
+    "train_accuracy": 0.31751111149787903,
+    "train_accuracy_step": 0.25,
+    "val_loss": 4.013406276702881,
+    "val_accuracy": 0.17100000381469727,
+    "val_top5": 0.38199999928474426,
+    "train_loss_epoch": 3.093629837036133,
+    "train_accuracy_epoch": 0.31751111149787903,
+    "train_top5": 0.5704222321510315
+  }
+}

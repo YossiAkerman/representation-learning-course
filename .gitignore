@@ -5,3 +5,17 @@
 **/tb_logs/
 **/*.ckpt
 **/*.pt
+
+# Local ML artifacts
+part_a/checkpoints/
+part_a/lightning_logs/
+part_a/logs/
+part_a/data/
+part_a/datasets/
+part_a/.venv/
+part_a/**/__pycache__/
+part_a/**/*.ckpt
+part_a/**/*.pt
+part_a/**/*.pth
+part_a/**/*.safetensors
+part_a/**/*.zip
