@@ -1,6 +1,7 @@
 """Shared evaluation for every encoder: k-NN, retrieval, and corruption."""
 
 import argparse
+import csv
 import json
 from pathlib import Path
 
@@ -226,7 +227,11 @@ def run_per_class(label_fraction, split):
 
 
 def run_retrieval(out_dir, queries=8, neighbors=5):
-    """Query validation images and show the nearest training images."""
+    """Show validation queries from distinct classes and their nearest training images.
+
+    A 1-NN label match means the closest training image has the query label.
+    That is separate from weighted k-NN classification accuracy.
+    """
     config.LABEL_FRACTION = 1.0
     config.PROXY_PER_CLASS = None
     datamodule = build_datamodule()
@@ -235,44 +240,102 @@ def run_retrieval(out_dir, queries=8, neighbors=5):
     module = _load_encoder_module()
     device = pick_device()
     bank, bank_labels = embed_loader(module, _unshuffled_loader(datamodule, datamodule.train_ds), device)
+    query, query_labels = embed_loader(module, _unshuffled_loader(datamodule, datamodule.val_ds), device)
+    neighbor_index = _nearest_indices(query, bank, neighbors)
+    neighbor_labels = bank_labels[neighbor_index]
     collected = []
-    seen = 0
-    module.eval()
-    with torch.no_grad():
-        for images, labels in _unshuffled_loader(datamodule, datamodule.val_ds):
-            features = module.encode(images.to(device)).cpu()
-            neighbor_index = retrieval_indices(features, bank, neighbors)
-            for row in range(images.shape[0]):
-                neighbor_labels = bank_labels[neighbor_index[row]]
-                collected.append({
-                    "image": images[row],
-                    "label": int(labels[row]),
-                    "neighbor_index": neighbor_index[row],
-                    "neighbor_labels": neighbor_labels,
-                    "correct": bool(int(neighbor_labels[0]) == int(labels[row])),
-                })
-            seen += images.shape[0]
-            correct = sum(item["correct"] for item in collected)
-            incorrect = len(collected) - correct
-            if correct >= 4 and incorrect >= 4:
-                break
-            if seen >= 2000 and collected:
-                break
-    chosen = _pick_retrieval_examples(collected, queries)
+    for row in range(query_labels.shape[0]):
+        collected.append({
+            "query_index": row,
+            "label": int(query_labels[row]),
+            "neighbor_index": neighbor_index[row],
+            "neighbor_labels": neighbor_labels[row],
+            "correct": bool(int(neighbor_labels[row, 0]) == int(query_labels[row])),
+        })
+    chosen = _pick_retrieval_examples(collected, queries, config.NUM_CLASSES, config.SEED)
+    for item in chosen:
+        image, label = datamodule.val_ds[item["query_index"]]
+        item["image"] = image
+        if int(label) != item["label"]:
+            raise RuntimeError(f"Validation row {item['query_index']} has label {label}, expected {item['label']}.")
+    classes = len({item["label"] for item in chosen})
+    matches = sum(item["correct"] for item in chosen)
+    print(
+        f"Selected {len(chosen)} validation queries from {classes} classes "
+        f"({matches} 1-NN label matches, {len(chosen) - matches} 1-NN label mismatches)."
+    )
     neighbor_images = _gather_neighbors(datamodule, chosen, neighbors)
-    path = Path(out_dir) / "a5_nearest_neighbors.png"
+    path = Path(out_dir) / "a5_1nn_retrieval.png"
     _save_retrieval_figure(chosen, neighbor_images, path)
+    _save_retrieval_csv(chosen, path.with_suffix(".csv"))
     print(f"Saved {path}")
+    print(f"Saved {path.with_suffix('.csv')}")
 
 
-def _pick_retrieval_examples(collected, queries):
-    correct = [item for item in collected if item["correct"]]
-    incorrect = [item for item in collected if not item["correct"]]
+def _nearest_indices(query, bank, neighbors, chunk=128):
+    """Cosine nearest neighbors, one chunk of queries at a time."""
+    parts = []
+    for start in range(0, query.shape[0], chunk):
+        parts.append(retrieval_indices(query[start:start + chunk], bank, neighbors))
+    return torch.cat(parts)
+
+
+def _pick_retrieval_examples(collected, queries, num_classes, seed):
+    """One query per class, aiming for half 1-NN matches and half mismatches.
+
+    The class order is a seeded shuffle, so the sample is not the first
+    validation batches. A class is used at most once.
+    """
+    generator = torch.Generator().manual_seed(seed)
+    class_order = torch.randperm(num_classes, generator=generator).tolist()
+    by_class = {}
+    for position, item in enumerate(collected):
+        by_class.setdefault(item["label"], []).append(position)
+    used = set()
+
+    def pick(class_id, want_match):
+        candidates = [
+            position for position in by_class.get(class_id, [])
+            if collected[position]["correct"] is want_match
+        ]
+        if not candidates:
+            return None
+        offset = int(torch.randint(len(candidates), (1,), generator=generator))
+        return candidates[offset]
+
+    def fill(want_match, count):
+        picked = []
+        for class_id in class_order:
+            if class_id in used or len(picked) >= count:
+                continue
+            position = pick(class_id, want_match)
+            if position is None:
+                continue
+            used.add(class_id)
+            picked.append(position)
+        return picked
+
     half = queries // 2
-    chosen = correct[:half] + incorrect[:queries - half]
-    if len(chosen) < queries:
-        chosen = collected[:queries]
-    return chosen[:queries]
+    match_rows = fill(True, half)
+    mismatch_rows = fill(False, half)
+    if len(match_rows) < half:
+        match_rows.extend(fill(True, half - len(match_rows)))
+    if len(mismatch_rows) < half:
+        mismatch_rows.extend(fill(False, half - len(mismatch_rows)))
+    chosen_rows = match_rows + mismatch_rows
+    if len(chosen_rows) < queries:
+        for class_id in class_order:
+            if class_id in used or len(chosen_rows) >= queries:
+                continue
+            rows = by_class.get(class_id, [])
+            if not rows:
+                continue
+            offset = int(torch.randint(len(rows), (1,), generator=generator))
+            used.add(class_id)
+            chosen_rows.append(rows[offset])
+    chosen = [collected[position] for position in chosen_rows[:queries]]
+    chosen.sort(key=lambda item: not item["correct"])
+    return chosen
 
 
 def _gather_neighbors(datamodule, chosen, neighbors):
@@ -286,22 +349,50 @@ def _gather_neighbors(datamodule, chosen, neighbors):
 
 def _save_retrieval_figure(chosen, neighbor_images, path):
     columns = 1 + neighbor_images[0].shape[0]
-    fig, axes = plt.subplots(len(chosen), columns, figsize=(1.4 * columns, 1.5 * len(chosen)))
+    fig, axes = plt.subplots(len(chosen), columns, figsize=(1.5 * columns, 1.7 * len(chosen)))
     if len(chosen) == 1:
         axes = axes.reshape(1, -1)
     for row, item in enumerate(chosen):
         _show(axes[row, 0], item["image"])
-        status = "correct" if item["correct"] else "incorrect"
-        axes[row, 0].set_ylabel(f"Query\n{status}", fontsize=8)
+        status = "1-NN label match" if item["correct"] else "1-NN label mismatch"
+        nearest = int(item["neighbor_labels"][0])
+        axes[row, 0].set_ylabel(f"Query class {item['label']}\n{status}", fontsize=7)
         for column in range(neighbor_images[row].shape[0]):
             _show(axes[row, column + 1], neighbor_images[row][column])
-            if row == 0 and column == 0:
-                axes[row, column + 1].set_title("Nearest training images", fontsize=10)
-    fig.suptitle("Nearest neighbors in representation h", fontsize=13)
+            if column == 0:
+                axes[row, column + 1].set_title(f"NN class {nearest}", fontsize=8)
+    fig.suptitle("1-NN retrieval in representation h", fontsize=13)
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
+def _save_retrieval_csv(chosen, path):
+    """Query class, shown neighbor classes, and whether the 1-NN label matches."""
+    neighbor_count = len(chosen[0]["neighbor_labels"]) if chosen else 0
+    fieldnames = [
+        "query_index",
+        "query_class_id",
+        "nearest_neighbor_class_id",
+        "nearest_neighbor_matches",
+    ]
+    fieldnames.extend(f"neighbor_{rank}_class_id" for rank in range(1, neighbor_count + 1))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for item in chosen:
+            labels = [int(label) for label in item["neighbor_labels"].tolist()]
+            row = {
+                "query_index": item["query_index"],
+                "query_class_id": item["label"],
+                "nearest_neighbor_class_id": labels[0],
+                "nearest_neighbor_matches": int(item["correct"]),
+            }
+            for rank, label in enumerate(labels, start=1):
+                row[f"neighbor_{rank}_class_id"] = label
+            writer.writerow(row)
 
 
 def _show(axis, image):
