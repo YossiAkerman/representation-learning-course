@@ -71,3 +71,17 @@ tensorboard --logdir tb_logs
 ```
 
 The scalar values used in `REPORT.md` are the JSON files in `results/`, not a remote dashboard.
+
+
+### TensorBoard Training Logs
+
+The training logs for Part A are provided in `tensorboard_logs_part_a.zip`.
+
+To inspect the recorded training and validation metrics, extract the archive from the `part_a` directory:
+
+```bash
+unzip tensorboard_logs_part_a.zip
+tensorboard --logdir tb_logs
+```
+
+The archive contains the recorded TensorBoard event files. Datasets and model checkpoints are excluded from the repository.
