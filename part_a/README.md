@@ -38,63 +38,101 @@ The objective is the mean squared error between the reconstruction and the clean
 
 ## Training configuration
 
-| Setting | Value |
-| --- | --- |
-| Latent dimension | 128 |
-| Noise sigma | 0.10 |
-| Optimizer | Adam |
-| Learning rate | 0.001 |
-| Batch size | 128 |
-| Epochs | 10 |
-| Seed | 42 |
-| Loss | MSE |
-| Accelerator | `auto` (GPU when available, otherwise CPU) |
-| Precision | `16-mixed` (bf16 fallback on CPU) |
+The initial, untuned denoising run is `configs/a1.py`: latent dimension 128, noise sigma 0.10, Adam with learning rate 0.001, batch size 128, 10 epochs, and seed 42. The loss is mean squared error. The accelerator is `auto` and the precision is `16-mixed`, so the run uses MPS or CUDA when one is present and the CPU otherwise.
 
-The settings for this run live in `configs/a1.py`. `python train.py --config a1` loads that file and trains for 10 epochs on the held-out 10,000 validation images. It does not score the official test split. There is no early stopping, so the run uses the full epoch budget. The last checkpoint is written to `checkpoints/last.ckpt`. When that file is in the default checkpoint directory, the encoder weights are also written to `tiny_imagenet_encoder.pt`. A later experiment adds `configs/<name>.py` and is started with `--config <name>`.
+`python train.py --config a1` trains for 10 epochs and validates on the held-out 10,000 images. It does not score the official test split. There is no early stopping. The last checkpoint is `checkpoints/last.ckpt`, and the encoder is also written to `tiny_imagenet_encoder.pt`.
 
-An interrupted run continues with `python train.py --config a1 --resume`. Resume starts a new TensorBoard directory. `visualize.py` reads the latest directory unless `--logdir` points at an earlier one.
+Every later experiment is another file in `configs/`. Each file has its own checkpoint directory, so runs do not overwrite one another. An interrupted run continues with `--resume` and the same config name.
 
-The official test split is reserved for final evaluation:
+## Later experiments
 
-```bash
-python train.py --config a1 --test
-```
+Do not start these until you intend to spend the compute. `python search.py` trains 12 proxy autoencoders on a fixed subset of 20 images per class (4,000 images) for 2 epochs. The validation set stays the full 10,000-image holdout. Selection uses validation k-NN top-1 accuracy, then lower validation MSE, then the smaller latent size. The script writes `configs/dae_selected.py`, `configs/vanilla.py`, `configs/random.py`, and the downstream configs.
+
+The vanilla autoencoder is the selected denoising model with sigma 0. The random encoder is the same architecture at the selected width, saved from the seed and not trained. Supervised runs train that encoder from scratch on a labeled fraction. Linear probes freeze it. Fine-tuning trains it, at learning rate 0.0001. Random fine-tuning at 100% is omitted because it is the same experiment as supervised training on all labels.
+
+Labeled fractions are 1%, 10%, and 100% of the training pool. On Tiny-ImageNet those totals are 900, 9,000, and 90,000. The 900-image subset gives five images to 100 classes and four to the other 100. CIFAR-100 is resized to 64×64. Fifty images per class are held out of its official training split, leaving 45,000 training images, 5,000 validation images, and the 10,000 official test images. Its 1% subset has 450 images.
+
+k-NN uses clean images, an encoder in eval mode, cosine similarity of L2-normalized `h`, `k = 20`, and a vote weighted by cosine values clamped at 0. Proxy trials use the 4,000-image subset as the bank. Final k-NN uses the labeled fraction as the bank. The official test split is not used to choose hyperparameters.
 
 ## Commands
 
-Install dependencies, then run the smoke test. The smoke test downloads Tiny-ImageNet, checks the splits and the network, and runs one training batch and one validation batch through `train.py`. It does not start the 10-epoch run.
+Install dependencies, then run the smoke test. It does not start the 10-epoch run or the 12 proxy trials.
 
 ```bash
 pip install -r requirements.txt
 python smoke_test.py
 ```
 
-Initial training:
+Initial A1 training, which is not the selected model:
 
 ```bash
 python train.py --config a1
+python visualize.py --config a1
 ```
 
-TensorBoard:
+Proxy search. This depends on nothing except the dataset cache, and it writes `configs/dae_selected.py`.
 
 ```bash
+python search.py
+```
+
+Final pretraining. The vanilla run depends on `configs/vanilla.py` from the search.
+
+```bash
+python train.py --config dae_selected
+python train.py --config vanilla
+python train.py --config random
+```
+
+Tiny-ImageNet supervised training, probes, and fine-tunes. Probes and fine-tunes depend on the encoder file named in the config. Repeat the same names with `_1` and `_10`.
+
+```bash
+python train.py --config supervised_100
+python train.py --config probe_dae_100
+python train.py --config probe_vanilla_100
+python train.py --config probe_random_100
+python train.py --config finetune_dae_100
+python train.py --config finetune_vanilla_100
+```
+
+Validation k-NN, then the official test split only after those configs are frozen:
+
+```bash
+python evaluate.py --config dae_selected --protocol knn --label-fraction 100 --split val
+python train.py --config probe_dae_100 --test
+```
+
+CIFAR-100 uses the same commands with a `cifar_` prefix, for example `python train.py --config cifar_probe_dae_100`. There is no extra self-supervised pretraining on CIFAR-100.
+
+Nearest neighbors, per-class accuracy, and the optional corruption curve:
+
+```bash
+python evaluate.py --config dae_selected --protocol retrieval
+python evaluate.py --config dae_selected --protocol per_class --split val
+python evaluate.py --config probe_dae_100 --protocol corruption --split val
+```
+
+Figures are drawn only from CSVs that already exist:
+
+```bash
+python visualize.py --results results
 tensorboard --logdir tb_logs
 ```
 
-After that training run has finished, write the two report figures from the checkpoint and the log. Do not run this on a smoke-test log; the smoke artifacts are deleted, and the script will not invent a curve.
-
-```bash
-python visualize.py
-```
+Resume an interrupted run with `python train.py --config <name> --resume`.
 
 ## Output locations
 
-- `dataset/` — Hugging Face cache
-- `tb_logs/<timestamp>/a1/` — training and validation loss
-- `checkpoints/last.ckpt` — last training checkpoint
-- `tiny_imagenet_encoder.pt` — encoder weights from a run that used the default checkpoint directory
-- `figures/a1_reconstructions.png` — eight validation images, original, noisy, and reconstructed
-- `figures/a1_training_loss.png` — training and validation MSE by epoch
+- `dataset/` — Tiny-ImageNet and CIFAR-100 downloads
+- `splits/` — shared labeled-subset indices
+- `tb_logs/<timestamp>/<experiment>/` — TensorBoard logs
+- `checkpoints/<experiment>/last.ckpt` — last checkpoint, except A1, which uses `checkpoints/last.ckpt`
+- `checkpoints/<experiment>/encoder.pt` — encoder weights for that run
+- `results/` — metrics JSON and the CSVs read by the figures
+- `figures/` — reconstruction, loss, search, baseline, transfer, label-efficiency, retrieval, and corruption figures
+- `REPORT.md` — methods, with results marked pending until the runs exist
 
-Datasets, checkpoints, logs, encoder files, and generated figures are gitignored.
+Datasets, checkpoints, logs, and encoder files are gitignored. Figures and result tables are not.
+
+The planned training count is 54 runs: 12 proxy models, 2 full autoencoders, and 20 Tiny-ImageNet plus 20 CIFAR-100 downstream runs. Saving the random encoder does not train. k-NN, retrieval, and corruption scoring do not train. The code is in place; those experiments have not been run.
+

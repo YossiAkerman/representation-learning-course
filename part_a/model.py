@@ -1,6 +1,60 @@
 import torch
 from torch import nn, optim
 import pytorch_lightning as pl
+import torchmetrics
+
+
+def build_encoder(latent_dim):
+    """Lecture-4 convolutional encoder for a 64x64 RGB image.
+
+    Two stride-2 convolutions halve the map twice (64 -> 32 -> 16). A linear
+    layer then compresses 64*16*16 numbers into h. The same stack is the
+    denoising autoencoder, the vanilla autoencoder, and every baseline.
+    """
+    return nn.Sequential(
+        nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1),  # [B, 3, 64, 64] -> [B, 32, 32, 32]
+        nn.ReLU(),
+        nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),  # [B, 32, 32, 32] -> [B, 64, 16, 16]
+        nn.ReLU(),
+        nn.Flatten(),  # [B, 64, 16, 16] -> [B, 16384]
+        nn.Linear(64 * 16 * 16, latent_dim),  # [B, 16384] -> [B, latent_dim]
+    )
+
+
+def build_decoder(latent_dim):
+    """Mirror of build_encoder. Sigmoid keeps pixels in (0, 1)."""
+    return nn.Sequential(
+        nn.Linear(latent_dim, 64 * 16 * 16),  # [B, latent_dim] -> [B, 16384]
+        nn.ReLU(),
+        nn.Unflatten(1, (64, 16, 16)),  # [B, 16384] -> [B, 64, 16, 16]
+        nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # -> [B, 32, 32, 32]
+        nn.ReLU(),
+        nn.ConvTranspose2d(32, 3, kernel_size=3, stride=2, padding=1, output_padding=1),  # -> [B, 3, 64, 64]
+        nn.Sigmoid(),
+    )
+
+
+def _accuracy_metrics(num_classes):
+    """Separate train, validation, and test meters so their state does not mix."""
+    metrics = {}
+    for stage in ("train", "val", "test"):
+        metrics[f"{stage}_top1"] = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
+        metrics[f"{stage}_top5"] = torchmetrics.Accuracy(
+            task="multiclass", num_classes=num_classes, top_k=5
+        )
+    return metrics
+
+
+def _classification_step(module, batch, stage):
+    x, y = batch
+    logits = module(x)
+    loss = module.loss_fn(logits, y)
+    top1 = getattr(module, f"{stage}_top1")(logits, y)
+    top5 = getattr(module, f"{stage}_top5")(logits, y)
+    module.log(f"{stage}_loss", loss, on_step=(stage == "train"), on_epoch=True, prog_bar=True)
+    module.log(f"{stage}_accuracy", top1, on_step=(stage == "train"), on_epoch=True, prog_bar=True)
+    module.log(f"{stage}_top5", top5, on_step=False, on_epoch=True, prog_bar=True)
+    return loss
 
 
 class DenoisingAutoEncoder(pl.LightningModule):
@@ -29,23 +83,8 @@ class DenoisingAutoEncoder(pl.LightningModule):
         self.noise_sigma = noise_sigma
         self.noise_seed = noise_seed
 
-        self.encoder = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1),  # [B, 3, 64, 64] -> [B, 32, 32, 32]
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),  # [B, 32, 32, 32] -> [B, 64, 16, 16]
-            nn.ReLU(),
-            nn.Flatten(),  # [B, 64, 16, 16] -> [B, 16384]
-            nn.Linear(64 * 16 * 16, latent_dim),  # [B, 16384] -> [B, latent_dim]
-        )
-        self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, 64 * 16 * 16),  # [B, latent_dim] -> [B, 16384]
-            nn.ReLU(),
-            nn.Unflatten(1, (64, 16, 16)),  # [B, 16384] -> [B, 64, 16, 16]
-            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),  # -> [B, 32, 32, 32]
-            nn.ReLU(),
-            nn.ConvTranspose2d(32, 3, kernel_size=3, stride=2, padding=1, output_padding=1),  # -> [B, 3, 64, 64]
-            nn.Sigmoid(),  # values in (0, 1)
-        )
+        self.encoder = build_encoder(latent_dim)
+        self.decoder = build_decoder(latent_dim)
         self.loss_fn = nn.MSELoss()
 
     def encode(self, x):
@@ -101,6 +140,97 @@ class DenoisingAutoEncoder(pl.LightningModule):
         x, _ = batch
         recon = self.forward(self.add_noise(x, generator=self._eval_noise_generator))
         return self.loss_fn(recon, x)
+
+    def configure_optimizers(self):
+        return optim.Adam(self.parameters(), lr=self.lr)
+
+
+class EncoderClassifier(pl.LightningModule):
+    """Pretrained encoder plus a new linear head.
+
+    freeze_encoder=True trains only the head. False trains the encoder and the
+    head. The encoder file is the representation being evaluated; this module
+    does not load a decoder.
+    """
+
+    def __init__(self, learning_rate, num_classes, latent_dim, encoder_path, freeze_encoder):
+        super().__init__()
+        self.save_hyperparameters()
+        self.lr = learning_rate
+        self.freeze_encoder = freeze_encoder
+
+        self.encoder = build_encoder(latent_dim)
+        state_dict = torch.load(encoder_path, map_location="cpu", weights_only=True)
+        self.encoder.load_state_dict(state_dict)
+        self.head = nn.Linear(latent_dim, num_classes)
+
+        if self.freeze_encoder:
+            self.encoder.eval()
+            for parameter in self.encoder.parameters():
+                parameter.requires_grad = False
+
+        self.loss_fn = nn.CrossEntropyLoss()
+        for name, metric in _accuracy_metrics(num_classes).items():
+            setattr(self, name, metric)
+
+    def train(self, mode=True):
+        super().train(mode)
+        if self.freeze_encoder:
+            self.encoder.eval()
+        return self
+
+    def encode(self, x):
+        """Frozen or fine-tuned representation h."""
+        return self.encoder(x)
+
+    def forward(self, x):
+        return self.head(self.encode(x))
+
+    def training_step(self, batch, batch_idx):
+        return _classification_step(self, batch, "train")
+
+    def validation_step(self, batch, batch_idx):
+        return _classification_step(self, batch, "val")
+
+    def test_step(self, batch, batch_idx):
+        return _classification_step(self, batch, "test")
+
+    def configure_optimizers(self):
+        parameters = [parameter for parameter in self.parameters() if parameter.requires_grad]
+        return optim.Adam(parameters, lr=self.lr)
+
+
+class SupervisedEncoder(pl.LightningModule):
+    """Same encoder as the autoencoder, trained from scratch with labels.
+
+    No autoencoder checkpoint is loaded. This is the supervised reference
+    for label efficiency.
+    """
+
+    def __init__(self, learning_rate, num_classes, latent_dim):
+        super().__init__()
+        self.save_hyperparameters()
+        self.lr = learning_rate
+        self.encoder = build_encoder(latent_dim)
+        self.head = nn.Linear(latent_dim, num_classes)
+        self.loss_fn = nn.CrossEntropyLoss()
+        for name, metric in _accuracy_metrics(num_classes).items():
+            setattr(self, name, metric)
+
+    def encode(self, x):
+        return self.encoder(x)
+
+    def forward(self, x):
+        return self.head(self.encode(x))
+
+    def training_step(self, batch, batch_idx):
+        return _classification_step(self, batch, "train")
+
+    def validation_step(self, batch, batch_idx):
+        return _classification_step(self, batch, "val")
+
+    def test_step(self, batch, batch_idx):
+        return _classification_step(self, batch, "test")
 
     def configure_optimizers(self):
         return optim.Adam(self.parameters(), lr=self.lr)

@@ -1,4 +1,5 @@
 import argparse
+import json
 import time
 from pathlib import Path
 
@@ -8,27 +9,72 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
 import config
-from datamodule import TinyImageNetDataModule
-from model import DenoisingAutoEncoder
+from datamodule import CIFAR100DataModule, TinyImageNetDataModule
+from model import (
+    DenoisingAutoEncoder,
+    EncoderClassifier,
+    SupervisedEncoder,
+    build_encoder,
+)
 
 torch.set_float32_matmul_precision("medium")  # to make lightning happy
 
 
 def build_model():
-    return DenoisingAutoEncoder(
-        learning_rate=config.LEARNING_RATE,
-        latent_dim=config.LATENT_DIM,
-        noise_sigma=config.NOISE_SIGMA,
-        noise_seed=config.SEED,
-    )
+    """Build the Lightning module named by config.MODEL."""
+    model_name = getattr(config, "MODEL", "dae")
+    if model_name == "dae":
+        return DenoisingAutoEncoder(
+            learning_rate=config.LEARNING_RATE,
+            latent_dim=config.LATENT_DIM,
+            noise_sigma=config.NOISE_SIGMA,
+            noise_seed=config.SEED,
+        )
+    if model_name == "supervised":
+        return SupervisedEncoder(
+            learning_rate=config.LEARNING_RATE,
+            num_classes=config.NUM_CLASSES,
+            latent_dim=config.LATENT_DIM,
+        )
+    if model_name in ("linear_probe", "finetune"):
+        source = getattr(config, "PRETRAINED_ENCODER", None) or config.ENCODER_PATH
+        if not Path(source).is_file():
+            raise FileNotFoundError(f"No encoder at {source}. Train that encoder before this run.")
+        learning_rate = config.LEARNING_RATE
+        if model_name == "finetune":
+            learning_rate = getattr(config, "FINETUNE_LEARNING_RATE", 0.0001)
+        return EncoderClassifier(
+            learning_rate=learning_rate,
+            num_classes=config.NUM_CLASSES,
+            latent_dim=config.LATENT_DIM,
+            encoder_path=source,
+            freeze_encoder=(model_name == "linear_probe"),
+        )
+    if model_name == "random":
+        return None
+    raise ValueError(f"Unknown MODEL {model_name!r}.")
 
 
 def build_datamodule():
-    return TinyImageNetDataModule(
+    """Tiny-ImageNet or CIFAR-100, using the active experiment's subset settings."""
+    dataset = getattr(config, "DATASET", "tinyimagenet")
+    settings = dict(
         data_dir=config.DATA_DIR,
         batch_size=config.BATCH_SIZE,
         num_workers=config.NUM_WORKERS,
         seed=config.SEED,
+        label_fraction=getattr(config, "LABEL_FRACTION", 1.0),
+        proxy_per_class=getattr(config, "PROXY_PER_CLASS", None),
+        splits_dir=getattr(config, "SPLITS_DIR", "splits"),
+    )
+    if dataset == "cifar100":
+        return CIFAR100DataModule(
+            **settings,
+            val_per_class=getattr(config, "VAL_PER_CLASS", 50),
+            num_classes=config.NUM_CLASSES,
+        )
+    return TinyImageNetDataModule(
+        **settings,
         val_per_class=config.VAL_PER_CLASS,
         num_classes=config.NUM_CLASSES,
         dataset_name=config.DATASET_NAME,
@@ -70,6 +116,11 @@ def parse_args():
 def run(args):
     """Train, or score the held-out test split. Settings come from the loaded experiment."""
     pl.seed_everything(config.SEED, workers=True)
+    model_name = getattr(config, "MODEL", "dae")
+
+    if model_name == "random":
+        _save_random_encoder()
+        return
 
     if args.test:
         ckpt_path = Path(config.CHECKPOINT_DIR) / "last.ckpt"
@@ -77,7 +128,8 @@ def run(args):
             raise FileNotFoundError(f"No checkpoint at {ckpt_path}. Train before testing.")
         logger = TensorBoardLogger(args.log_dir, name=time.strftime("%Y-%m-%d_%H-%M-%S"), version="test")
         trainer = _make_trainer(args, logger, max_epochs=1, checkpointing=False)
-        trainer.test(build_model(), datamodule=build_datamodule(), ckpt_path=str(ckpt_path))
+        results = trainer.test(build_model(), datamodule=build_datamodule(), ckpt_path=str(ckpt_path))
+        _write_test_summary(results)
         return
 
     ckpt_path = None
@@ -97,17 +149,71 @@ def run(args):
 
     print(model)
     print(
-        f"Experiment {config.EXPERIMENT_NAME}: denoising autoencoder on Tiny-ImageNet "
+        f"Experiment {config.EXPERIMENT_NAME}: {model_name} on {getattr(config, 'DATASET', 'tinyimagenet')} "
         f"for {max_epochs} epochs, batch size {config.BATCH_SIZE}, "
         f"latent dim {config.LATENT_DIM}, noise sigma {config.NOISE_SIGMA}, lr {config.LEARNING_RATE}"
     )
     trainer.fit(model, dm, ckpt_path=ckpt_path)
 
-    # The lecture pipeline hands the next stage an encoder file. A smoke run
-    # uses another checkpoint directory, so it does not overwrite this file.
+    # A smoke run passes another checkpoint directory, so it does not replace
+    # this experiment's encoder file.
+    if args.ckpt_dir == config.CHECKPOINT_DIR and model_name != "linear_probe":
+        destination = Path(config.ENCODER_PATH)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(model.encoder.state_dict(), destination)
+        print(f"Saved encoder to {destination}")
     if args.ckpt_dir == config.CHECKPOINT_DIR:
-        torch.save(model.encoder.state_dict(), config.ENCODER_PATH)
-        print(f"Saved encoder to {config.ENCODER_PATH}")
+        _write_fit_summary(trainer)
+
+
+def _save_random_encoder():
+    """Write the seeded encoder without training it."""
+    encoder = build_encoder(config.LATENT_DIM)
+    destination = Path(config.ENCODER_PATH)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(encoder.state_dict(), destination)
+    print(f"Saved random encoder to {destination}")
+
+
+def _write_fit_summary(trainer):
+    """Record the epoch metrics from this run. Smoke runs skip this file."""
+    metrics = {}
+    for key, value in trainer.callback_metrics.items():
+        if hasattr(value, "item"):
+            metrics[key] = float(value.item())
+    payload = {
+        "experiment": config.EXPERIMENT_NAME,
+        "model": getattr(config, "MODEL", "dae"),
+        "dataset": getattr(config, "DATASET", "tinyimagenet"),
+        "latent_dim": config.LATENT_DIM,
+        "noise_sigma": config.NOISE_SIGMA,
+        "learning_rate": config.LEARNING_RATE,
+        "epochs": config.NUM_EPOCHS,
+        "batch_size": config.BATCH_SIZE,
+        "metrics": metrics,
+    }
+    destination = Path(getattr(config, "RESULTS_DIR", "results")) / f"{config.EXPERIMENT_NAME}.json"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2))
+    print(f"Saved fit summary to {destination}")
+
+
+def _write_test_summary(results):
+    metrics = {}
+    if results:
+        for key, value in results[0].items():
+            metrics[key] = float(value)
+    payload = {
+        "experiment": config.EXPERIMENT_NAME,
+        "model": getattr(config, "MODEL", "dae"),
+        "dataset": getattr(config, "DATASET", "tinyimagenet"),
+        "split": "test",
+        "metrics": metrics,
+    }
+    destination = Path(getattr(config, "RESULTS_DIR", "results")) / f"{config.EXPERIMENT_NAME}_test.json"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2))
+    print(f"Saved test summary to {destination}")
 
 
 def _make_trainer(args, logger, max_epochs, checkpointing=True):

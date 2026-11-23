@@ -1,5 +1,7 @@
 # Initial denoising-autoencoder experiment. Another run adds configs/<name>.py.
 EXPERIMENT_NAME = "a1"
+MODEL = "dae"
+DATASET = "tinyimagenet"
 
 # Training hyperparameters.
 LATENT_DIM = 128  # length of h. Later probes must use this same width.

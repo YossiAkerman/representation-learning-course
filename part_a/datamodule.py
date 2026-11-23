@@ -1,10 +1,12 @@
 import torch
+from pathlib import Path
 from torch.utils.data import DataLoader, Dataset
 import pytorch_lightning as pl
 from torchvision.transforms import functional as TF
 from datasets import load_dataset
 
 import config
+from splits import load_or_create_subset
 
 
 class TinyImageNetSubset(Dataset):
@@ -87,6 +89,9 @@ class TinyImageNetDataModule(pl.LightningDataModule):
         val_per_class=config.VAL_PER_CLASS,
         num_classes=config.NUM_CLASSES,
         dataset_name=config.DATASET_NAME,
+        label_fraction=1.0,
+        proxy_per_class=None,
+        splits_dir="splits",
     ):
         super().__init__()
         self.data_dir = data_dir
@@ -96,6 +101,10 @@ class TinyImageNetDataModule(pl.LightningDataModule):
         self.val_per_class = val_per_class
         self.num_classes = num_classes
         self.dataset_name = dataset_name
+        self.label_fraction = label_fraction
+        self.proxy_per_class = proxy_per_class
+        self.splits_dir = splits_dir
+        self.split_name = "tinyimagenet"
 
     def prepare_data(self):
         # Download once. setup() reads the cached copy.
@@ -116,10 +125,43 @@ class TinyImageNetDataModule(pl.LightningDataModule):
         self.train_labels = label_tensor[self.train_indices]
         self.val_labels = label_tensor[self.val_indices]
         self.test_labels = torch.as_tensor(ds["valid"]["label"], dtype=torch.long)
+        self.train_source = ds["train"]
+        self.test_source = ds["valid"]
+        self._apply_train_subset()
 
         self.train_ds = TinyImageNetSubset(ds["train"], self.train_indices)
         self.val_ds = TinyImageNetSubset(ds["train"], self.val_indices)
         self.test_ds = TinyImageNetSubset(ds["valid"], self.test_indices)
+
+    def _apply_train_subset(self):
+        """Restrict training images to a saved proxy subset or label fraction.
+
+        Validation and the official test split are left unchanged.
+        """
+        if self.proxy_per_class:
+            total = int(self.proxy_per_class) * self.num_classes
+            kind = f"proxy_{self.proxy_per_class}"
+        elif self.label_fraction < 1 - 1e-9:
+            total = int(round(len(self.train_indices) * self.label_fraction))
+            kind = f"fraction_{int(round(self.label_fraction * 100))}"
+        else:
+            return
+
+        path = Path(self.splits_dir) / f"{self.split_name}_{kind}.json"
+        pool_indices = list(self.train_indices)
+        pool_labels = self.train_labels
+        chosen = load_or_create_subset(
+            path,
+            pool_indices,
+            pool_labels,
+            total,
+            self.num_classes,
+            self.seed,
+            kind,
+        )
+        position = {int(index): row for row, index in enumerate(pool_indices)}
+        self.train_indices = chosen
+        self.train_labels = pool_labels[[position[int(index)] for index in chosen]]
 
     def train_dataloader(self):
         return DataLoader(
@@ -206,3 +248,88 @@ def verify_dataset(dm):
     print(f"  batch shape: {report['sample_shape']}")
     print(f"  pixel range over one batch per split: [{report['pixel_min']:.4f}, {report['pixel_max']:.4f}]")
     return report
+
+
+class CIFAR100Images(Dataset):
+    """CIFAR-100 images resized to 64x64 RGB tensors in [0, 1]."""
+
+    def __init__(self, base, indices):
+        self.base = base
+        self.indices = indices
+
+    def __len__(self):
+        return len(self.indices)
+
+    def __getitem__(self, i):
+        image, label = self.base[int(self.indices[i])]
+        image = TF.resize(image.convert("RGB"), [64, 64], interpolation=TF.InterpolationMode.BILINEAR)
+        return TF.to_tensor(image), int(label)
+
+
+class CIFAR100DataModule(pl.LightningDataModule):
+    """CIFAR-100 resized to the Tiny-ImageNet input size.
+
+    Fifty images per class are held out of the official training split
+    (45,000 train, 5,000 validation). The official test split (10,000)
+    stays separate and is not used to build the holdout.
+    """
+
+    def __init__(
+        self,
+        data_dir=config.DATA_DIR,
+        batch_size=config.BATCH_SIZE,
+        num_workers=config.NUM_WORKERS,
+        seed=config.SEED,
+        val_per_class=50,
+        num_classes=100,
+        label_fraction=1.0,
+        proxy_per_class=None,
+        splits_dir="splits",
+    ):
+        super().__init__()
+        self.data_dir = str(Path(data_dir) / "cifar100")
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.seed = seed
+        self.val_per_class = val_per_class
+        self.num_classes = num_classes
+        self.label_fraction = label_fraction
+        self.proxy_per_class = proxy_per_class
+        self.splits_dir = splits_dir
+        self.split_name = "cifar100"
+
+    def prepare_data(self):
+        from torchvision.datasets import CIFAR100
+
+        CIFAR100(self.data_dir, train=True, download=True)
+        CIFAR100(self.data_dir, train=False, download=True)
+
+    def setup(self, stage=None):
+        from torchvision.datasets import CIFAR100
+
+        train_source = CIFAR100(self.data_dir, train=True, download=False)
+        test_source = CIFAR100(self.data_dir, train=False, download=False)
+        self.train_source = train_source
+        self.test_source = test_source
+        self.train_indices, self.val_indices = balanced_train_val_split(
+            train_source.targets,
+            val_per_class=self.val_per_class,
+            num_classes=self.num_classes,
+            seed=self.seed,
+        )
+        self.test_indices = list(range(len(test_source)))
+        source_labels = torch.as_tensor(train_source.targets, dtype=torch.long)
+        self.train_labels = source_labels[self.train_indices]
+        self.val_labels = source_labels[self.val_indices]
+        self.test_labels = torch.as_tensor(test_source.targets, dtype=torch.long)
+        self._apply_train_subset()
+
+        self.train_ds = CIFAR100Images(train_source, self.train_indices)
+        self.val_ds = CIFAR100Images(train_source, self.val_indices)
+        self.test_ds = CIFAR100Images(test_source, self.test_indices)
+
+    _apply_train_subset = TinyImageNetDataModule._apply_train_subset
+    train_dataloader = TinyImageNetDataModule.train_dataloader
+    val_dataloader = TinyImageNetDataModule.val_dataloader
+    test_dataloader = TinyImageNetDataModule.test_dataloader
+
