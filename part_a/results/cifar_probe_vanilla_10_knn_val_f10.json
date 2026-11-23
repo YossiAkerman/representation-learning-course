@@ -1,0 +1,9 @@
+{
+  "experiment": "cifar_probe_vanilla_10",
+  "protocol": "knn",
+  "dataset": "cifar100",
+  "split": "val",
+  "label_fraction": 10,
+  "top1": 0.1334,
+  "top5": 0.33
+}

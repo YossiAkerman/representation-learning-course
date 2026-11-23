@@ -1,0 +1,11 @@
+{
+  "experiment": "probe_vanilla_100",
+  "model": "linear_probe",
+  "dataset": "tinyimagenet",
+  "split": "test",
+  "metrics": {
+    "test_loss": 4.80702543258667,
+    "test_accuracy": 0.07190000265836716,
+    "test_top5": 0.19760000705718994
+  }
+}

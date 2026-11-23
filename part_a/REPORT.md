@@ -1,6 +1,6 @@
 # Part A report
 
-The numerical results in this file are pending. No experiment beyond the smoke test has been run, and this file is not a PDF.
+This file is not a PDF. Sections that do not cite a saved result file are still pending.
 
 ## 1. Methods
 
@@ -30,11 +30,21 @@ The baselines are a vanilla autoencoder, which is the selected model with sigma 
 
 ## 2. Results
 
-Pending. The smoke test checks the implementation. It does not produce the reconstruction figures, the search scatter, the baseline tables, the label-efficiency curves, the transfer results, or the nearest-neighbor panel.
+The search table, baseline table, label-efficiency curves, and transfer table are still pending.
+
+### A5. Representation analysis and failure cases
+
+The per-class analysis revealed substantial variation in representation quality across Tiny-ImageNet categories. The DAE achieved 6.95% validation k-NN Top-1 accuracy, compared with 7.07% for the vanilla AE. Both figures are the recorded full-bank validation scores in `results/dae_selected_knn_val_f100.json` and `results/vanilla_knn_val_f100.json`.
+
+Both models failed to correctly classify any validation images in more than 50 of the 200 categories. Their per-class accuracies were strongly correlated (Pearson r = 0.962), indicating similar patterns of success and failure. Those counts and the correlation are computed from `results/dae_selected_per_class_val.json` and `results/vanilla_per_class_val.json`, where each class has 50 validation images.
+
+Nearest-neighbor visualizations also revealed cases in which visually similar images belonged to different categories, suggesting that color, texture, and other low-level visual characteristics may influence the learned representations. The class-diverse 1-NN panels are `figures/a5_dae_1nn/a5_1nn_retrieval.png` and `figures/a5_vanilla_1nn/a5_1nn_retrieval.png`. Each panel has eight query classes, four 1-NN label matches, and four 1-NN label mismatches. A 1-NN label match means the closest training image has the query label; it is not the weighted k-NN score. The earlier single-category panels remain at `figures/a5_dae/a5_nearest_neighbors.png` and `figures/a5_vanilla/a5_nearest_neighbors.png`.
+
+Overall, reconstruction-based pretraining produced useful features relative to random initialization, but the results did not establish a consistent representation-quality advantage for denoising over vanilla autoencoder training.
 
 ## 3. Discussion
 
-Pending. In particular, the comparison of reconstruction error with k-NN accuracy, the ranking under k-NN, linear probing, and fine-tuning, the failure cases, and the transfer results all require the recorded runs. No numerical claim is made here.
+The comparison of reconstruction error with k-NN accuracy, the ranking under linear probing and fine-tuning, and the transfer results are still pending. The failure-case comparison above is limited to the recorded validation k-NN analysis.
 
 ## References
 

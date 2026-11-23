@@ -1,0 +1,9 @@
+query_index,query_class_id,nearest_neighbor_class_id,nearest_neighbor_matches,neighbor_1_class_id,neighbor_2_class_id,neighbor_3_class_id,neighbor_4_class_id,neighbor_5_class_id
+7109,142,142,1,142,107,86,180,155
+2778,55,55,1,55,51,6,31,11
+236,4,4,1,4,186,72,3,84
+8709,174,174,1,174,194,199,199,10
+2818,56,8,0,8,10,35,36,151
+9909,198,8,0,8,8,163,16,51
+3872,77,81,0,81,80,88,72,141
+2545,50,17,0,17,5,10,14,58

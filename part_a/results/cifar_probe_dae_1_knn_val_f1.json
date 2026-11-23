@@ -1,0 +1,9 @@
+{
+  "experiment": "cifar_probe_dae_1",
+  "protocol": "knn",
+  "dataset": "cifar100",
+  "split": "val",
+  "label_fraction": 1,
+  "top1": 0.074,
+  "top5": 0.2184
+}

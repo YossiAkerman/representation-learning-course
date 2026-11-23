@@ -1,0 +1,11 @@
+{
+  "experiment": "cifar_finetune_dae_1",
+  "model": "finetune",
+  "dataset": "cifar100",
+  "split": "test",
+  "metrics": {
+    "test_loss": 4.583230972290039,
+    "test_accuracy": 0.027499999850988388,
+    "test_top5": 0.10459999740123749
+  }
+}

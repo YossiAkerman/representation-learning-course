@@ -1,0 +1,1002 @@
+[
+  {
+    "class_id": 0,
+    "count": 50,
+    "accuracy": 0.30000001192092896
+  },
+  {
+    "class_id": 1,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 2,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 3,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 4,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 5,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 6,
+    "count": 50,
+    "accuracy": 0.2199999988079071
+  },
+  {
+    "class_id": 7,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 8,
+    "count": 50,
+    "accuracy": 0.1599999964237213
+  },
+  {
+    "class_id": 9,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 10,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 11,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 12,
+    "count": 50,
+    "accuracy": 0.4399999976158142
+  },
+  {
+    "class_id": 13,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 14,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 15,
+    "count": 50,
+    "accuracy": 0.10000000149011612
+  },
+  {
+    "class_id": 16,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 17,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 18,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 19,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 20,
+    "count": 50,
+    "accuracy": 0.20000000298023224
+  },
+  {
+    "class_id": 21,
+    "count": 50,
+    "accuracy": 0.47999998927116394
+  },
+  {
+    "class_id": 22,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 23,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 24,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 25,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 26,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 27,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 28,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 29,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 30,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 31,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 32,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 33,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 34,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 35,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 36,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 37,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 38,
+    "count": 50,
+    "accuracy": 0.1599999964237213
+  },
+  {
+    "class_id": 39,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 40,
+    "count": 50,
+    "accuracy": 0.1599999964237213
+  },
+  {
+    "class_id": 41,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 42,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 43,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 44,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 45,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 46,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 47,
+    "count": 50,
+    "accuracy": 0.25999999046325684
+  },
+  {
+    "class_id": 48,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 49,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 50,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 51,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 52,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 53,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 54,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 55,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 56,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 57,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 58,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 59,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 60,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 61,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 62,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 63,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 64,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 65,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 66,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 67,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 68,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 69,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 70,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 71,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 72,
+    "count": 50,
+    "accuracy": 0.25999999046325684
+  },
+  {
+    "class_id": 73,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 74,
+    "count": 50,
+    "accuracy": 0.2800000011920929
+  },
+  {
+    "class_id": 75,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 76,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 77,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 78,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 79,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 80,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 81,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 82,
+    "count": 50,
+    "accuracy": 0.10000000149011612
+  },
+  {
+    "class_id": 83,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 84,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 85,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 86,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 87,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 88,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 89,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 90,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 91,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 92,
+    "count": 50,
+    "accuracy": 0.10000000149011612
+  },
+  {
+    "class_id": 93,
+    "count": 50,
+    "accuracy": 0.20000000298023224
+  },
+  {
+    "class_id": 94,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 95,
+    "count": 50,
+    "accuracy": 0.5600000023841858
+  },
+  {
+    "class_id": 96,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 97,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 98,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 99,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 100,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 101,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 102,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 103,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 104,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 105,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 106,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 107,
+    "count": 50,
+    "accuracy": 0.18000000715255737
+  },
+  {
+    "class_id": 108,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 109,
+    "count": 50,
+    "accuracy": 0.3199999928474426
+  },
+  {
+    "class_id": 110,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 111,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 112,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 113,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 114,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 115,
+    "count": 50,
+    "accuracy": 0.30000001192092896
+  },
+  {
+    "class_id": 116,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 117,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 118,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 119,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 120,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 121,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 122,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 123,
+    "count": 50,
+    "accuracy": 0.10000000149011612
+  },
+  {
+    "class_id": 124,
+    "count": 50,
+    "accuracy": 0.1599999964237213
+  },
+  {
+    "class_id": 125,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 126,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 127,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 128,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 129,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 130,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 131,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 132,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 133,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 134,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 135,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 136,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 137,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 138,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 139,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 140,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 141,
+    "count": 50,
+    "accuracy": 0.18000000715255737
+  },
+  {
+    "class_id": 142,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 143,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 144,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 145,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 146,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 147,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 148,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 149,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 150,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 151,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 152,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 153,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 154,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 155,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 156,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 157,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 158,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 159,
+    "count": 50,
+    "accuracy": 0.18000000715255737
+  },
+  {
+    "class_id": 160,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 161,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 162,
+    "count": 50,
+    "accuracy": 0.1599999964237213
+  },
+  {
+    "class_id": 163,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 164,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 165,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 166,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 167,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 168,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 169,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 170,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 171,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 172,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 173,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 174,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 175,
+    "count": 50,
+    "accuracy": 0.2199999988079071
+  },
+  {
+    "class_id": 176,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 177,
+    "count": 50,
+    "accuracy": 0.25999999046325684
+  },
+  {
+    "class_id": 178,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 179,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 180,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 181,
+    "count": 50,
+    "accuracy": 0.11999999731779099
+  },
+  {
+    "class_id": 182,
+    "count": 50,
+    "accuracy": 0.23999999463558197
+  },
+  {
+    "class_id": 183,
+    "count": 50,
+    "accuracy": 0.07999999821186066
+  },
+  {
+    "class_id": 184,
+    "count": 50,
+    "accuracy": 0.03999999910593033
+  },
+  {
+    "class_id": 185,
+    "count": 50,
+    "accuracy": 0.10000000149011612
+  },
+  {
+    "class_id": 186,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 187,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 188,
+    "count": 50,
+    "accuracy": 0.3400000035762787
+  },
+  {
+    "class_id": 189,
+    "count": 50,
+    "accuracy": 0.30000001192092896
+  },
+  {
+    "class_id": 190,
+    "count": 50,
+    "accuracy": 0.1599999964237213
+  },
+  {
+    "class_id": 191,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 192,
+    "count": 50,
+    "accuracy": 0.3400000035762787
+  },
+  {
+    "class_id": 193,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 194,
+    "count": 50,
+    "accuracy": 0.05999999865889549
+  },
+  {
+    "class_id": 195,
+    "count": 50,
+    "accuracy": 0.10000000149011612
+  },
+  {
+    "class_id": 196,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 197,
+    "count": 50,
+    "accuracy": 0.0
+  },
+  {
+    "class_id": 198,
+    "count": 50,
+    "accuracy": 0.019999999552965164
+  },
+  {
+    "class_id": 199,
+    "count": 50,
+    "accuracy": 0.5400000214576721
+  }
+]

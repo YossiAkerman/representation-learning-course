@@ -1,0 +1,11 @@
+{
+  "experiment": "finetune_random_1",
+  "model": "finetune",
+  "dataset": "tinyimagenet",
+  "split": "test",
+  "metrics": {
+    "test_loss": 5.267444133758545,
+    "test_accuracy": 0.010400000028312206,
+    "test_top5": 0.04500000178813934
+  }
+}

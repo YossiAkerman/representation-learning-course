@@ -1,0 +1,11 @@
+{
+  "experiment": "cifar_probe_random_1",
+  "model": "linear_probe",
+  "dataset": "cifar100",
+  "split": "test",
+  "metrics": {
+    "test_loss": 4.599648475646973,
+    "test_accuracy": 0.012799999676644802,
+    "test_top5": 0.05779999867081642
+  }
+}

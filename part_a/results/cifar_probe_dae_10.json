@@ -1,0 +1,22 @@
+{
+  "experiment": "cifar_probe_dae_10",
+  "model": "linear_probe",
+  "dataset": "cifar100",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 2.8047752380371094,
+    "train_loss_step": 2.8078856468200684,
+    "train_accuracy": 0.3624444305896759,
+    "train_accuracy_step": 0.5,
+    "val_loss": 3.949598789215088,
+    "val_accuracy": 0.147599995136261,
+    "val_top5": 0.35659998655319214,
+    "train_loss_epoch": 2.8047752380371094,
+    "train_accuracy_epoch": 0.3624444305896759,
+    "train_top5": 0.6320000290870667
+  }
+}

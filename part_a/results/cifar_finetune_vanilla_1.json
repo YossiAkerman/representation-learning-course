@@ -1,0 +1,22 @@
+{
+  "experiment": "cifar_finetune_vanilla_1",
+  "model": "finetune",
+  "dataset": "cifar100",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.0001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 4.068361759185791,
+    "train_loss_step": 3.9308269023895264,
+    "train_accuracy": 0.08444444090127945,
+    "train_accuracy_step": 0.07575757801532745,
+    "val_loss": 4.574187278747559,
+    "val_accuracy": 0.0284000001847744,
+    "val_top5": 0.10639999806880951,
+    "train_loss_epoch": 4.068361759185791,
+    "train_accuracy_epoch": 0.08444444090127945,
+    "train_top5": 0.31111112236976624
+  }
+}

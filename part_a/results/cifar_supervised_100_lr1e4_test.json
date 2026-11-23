@@ -1,0 +1,11 @@
+{
+  "experiment": "cifar_supervised_100_lr1e4",
+  "model": "supervised",
+  "dataset": "cifar100",
+  "split": "test",
+  "metrics": {
+    "test_loss": 3.0135726928710938,
+    "test_accuracy": 0.2838999927043915,
+    "test_top5": 0.560699999332428
+  }
+}

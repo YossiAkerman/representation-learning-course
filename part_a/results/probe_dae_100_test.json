@@ -1,0 +1,11 @@
+{
+  "experiment": "probe_dae_100",
+  "model": "linear_probe",
+  "dataset": "tinyimagenet",
+  "split": "test",
+  "metrics": {
+    "test_loss": 4.8489556312561035,
+    "test_accuracy": 0.06989999860525131,
+    "test_top5": 0.19599999487400055
+  }
+}

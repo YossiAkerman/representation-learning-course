@@ -1,0 +1,11 @@
+{
+  "experiment": "supervised_100_lr1e4",
+  "model": "supervised",
+  "dataset": "tinyimagenet",
+  "split": "test",
+  "metrics": {
+    "test_loss": 3.948749303817749,
+    "test_accuracy": 0.1754000037908554,
+    "test_top5": 0.3878999948501587
+  }
+}

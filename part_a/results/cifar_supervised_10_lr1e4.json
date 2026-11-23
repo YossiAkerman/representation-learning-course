@@ -1,0 +1,22 @@
+{
+  "experiment": "cifar_supervised_10_lr1e4",
+  "model": "supervised",
+  "dataset": "cifar100",
+  "latent_dim": 256,
+  "noise_sigma": 0.0,
+  "learning_rate": 0.0001,
+  "epochs": 10,
+  "batch_size": 128,
+  "metrics": {
+    "train_loss": 3.3107750415802,
+    "train_loss_step": 3.404589891433716,
+    "train_accuracy": 0.2280000001192093,
+    "train_accuracy_step": 0.10000000149011612,
+    "val_loss": 3.734257459640503,
+    "val_accuracy": 0.15440000593662262,
+    "val_top5": 0.36800000071525574,
+    "train_loss_epoch": 3.3107750415802,
+    "train_accuracy_epoch": 0.2280000001192093,
+    "train_top5": 0.4897777736186981
+  }
+}
